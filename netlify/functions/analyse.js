@@ -38,10 +38,16 @@ exports.handler = async (event) => {
     });
 
     req.on('error', (e) => {
-      resolve({
-        statusCode: 500,
-        body: JSON.stringify({ error: e.message })
-      });
+        // ... inside the req.on('end', () => { ... block
+res.on('end', () => {
+    console.log("OpenAI Status:", res.statusCode);
+    console.log("OpenAI Response Body:", rawData); // <--- ADD THIS LINE
+    resolve({
+        statusCode: res.statusCode,
+        headers: { "Content-Type": "application/json" },
+        body: rawData
+    });
+});
     });
 
     req.write(postData);
